@@ -21,12 +21,25 @@ namespace HomeBot
 
         private static void StartBot()
         {
-            using var client = new DiscordClient();
+            string token = Environment.GetEnvironmentVariable("DiscordToken");
+
+            DiscordClient client;
+            try
+            {
+                client = new DiscordClient(token);
+            }
+            catch (Exception exc)
+            {
+                Console.WriteLine($"Could not start bot: {exc.Message}");
+                return;
+            }
 
             Console.WriteLine("Started bot.");
 
             while (!_closing)
                 Thread.Sleep(100);
+
+            client.Dispose();
         }
 
         private static void ExitApp(object sender, ConsoleCancelEventArgs e)
