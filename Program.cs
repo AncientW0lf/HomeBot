@@ -1,7 +1,5 @@
 ﻿using System.Threading;
 using System;
-using Discord.WebSocket;
-using System.Threading.Tasks;
 
 namespace HomeBot
 {
