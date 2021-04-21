@@ -60,10 +60,10 @@ namespace HomeBot.Commands
 
         private bool TrySetupSchedule(string name, TimeSpan interval)
         {
-            if (PictureScheduler.Instance.Schedules.Count(a => a.Name.Equals(name)) > 0)
+            if (Program.PicScheduler.Schedules.Count(a => a.Name.Equals(name)) > 0)
                 return false;
 
-            PictureSchedule[] newArr = PictureScheduler.Instance.Schedules.Append(new PictureSchedule(name, interval)).ToArray();
+            PictureSchedule[] newArr = Program.PicScheduler.Schedules.Append(new PictureSchedule(name, interval)).ToArray();
 
             try
             {
@@ -84,10 +84,10 @@ namespace HomeBot.Commands
 
         private bool TryStopSchedule(string name)
         {
-            if (PictureScheduler.Instance.Schedules.Count(a => a.Name.Equals(name)) == 0)
+            if (Program.PicScheduler.Schedules.Count(a => a.Name.Equals(name)) == 0)
                 return false;
 
-            PictureSchedule[] newArr = PictureScheduler.Instance.Schedules.Where(a => !a.Name.Equals(name)).ToArray();
+            PictureSchedule[] newArr = Program.PicScheduler.Schedules.Where(a => !a.Name.Equals(name)).ToArray();
 
             try
             {
