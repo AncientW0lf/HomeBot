@@ -29,6 +29,8 @@ namespace HomeBot
                 return;
             }
 
+            Console.WriteLine("Starting bot...");
+
             DiscordClient client;
             try
             {
