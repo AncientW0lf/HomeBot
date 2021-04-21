@@ -6,22 +6,23 @@ namespace HomeBot
 {
     internal class PictureScheduler : IDisposable
     {
-        public static readonly PictureScheduler Instance = new PictureScheduler();
-
         public PictureSchedule[] Schedules = new PictureSchedule[0];
 
         public const string Filename = "picschedules.json";
 
         private readonly FileSystemWatcher _scheduleWatcher;
 
-        private PictureScheduler()
+        public PictureScheduler()
         {
             if (!File.Exists(Filename))
                 File.Create(Filename).Dispose();
+            else
+                TryReloadSchedules();
 
             _scheduleWatcher = new FileSystemWatcher(Environment.CurrentDirectory, Filename);
+            _scheduleWatcher.Created += (_, _) => TryReloadSchedules();
             _scheduleWatcher.Changed += (_, _) => TryReloadSchedules();
-            TryReloadSchedules();
+            _scheduleWatcher.EnableRaisingEvents = true;
         }
 
         private bool TryReloadSchedules()

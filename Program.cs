@@ -5,6 +5,8 @@ namespace HomeBot
 {
     internal class Program
     {
+        public static readonly PictureScheduler PicScheduler = new PictureScheduler();
+
         private const string TokenVar = "DiscordToken";
 
         private static Thread _botThread = new Thread(StartBot) { Name = "BotMain" };
