@@ -10,9 +10,9 @@ namespace HomeBot
 {
     internal class DiscordClient : IDisposable
     {
-        private const char CommandPrefix = '/';
+        public DiscordSocketClient Client;
 
-        private DiscordSocketClient _client;
+        private const char CommandPrefix = '/';
 
         private ICommand[] _commands;
 
@@ -20,17 +20,17 @@ namespace HomeBot
         {
             AddCommands();
 
-            _client = new DiscordSocketClient();
+            Client = new DiscordSocketClient();
 
-            _client.MessageReceived += ReceivedMessage;
+            Client.MessageReceived += ReceivedMessage;
 
             Task.Run(async () =>
             {
-                await _client.LoginAsync(TokenType.Bot, token);
+                await Client.LoginAsync(TokenType.Bot, token);
 
-                await _client.SetGameAsync("you", null, ActivityType.Watching);
+                await Client.SetGameAsync("you", null, ActivityType.Watching);
 
-                await _client.StartAsync();
+                await Client.StartAsync();
             }).GetAwaiter().GetResult();
         }
 
@@ -87,7 +87,7 @@ namespace HomeBot
 
         public void Dispose()
         {
-            _client.Dispose();
+            Client.Dispose();
         }
     }
 }
