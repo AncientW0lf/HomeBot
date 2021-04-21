@@ -1,4 +1,5 @@
 using System;
+using System.Text.Json.Serialization;
 
 namespace HomeBot
 {
@@ -7,6 +8,7 @@ namespace HomeBot
     {
         public string Name { get; set; } = "NoName";
 
+        [JsonConverter(typeof(TimeSpanJsonConverter))]
         public TimeSpan Interval { get; set; } = TimeSpan.FromMinutes(1);
 
         [Obsolete("Serialization only!", true)]
