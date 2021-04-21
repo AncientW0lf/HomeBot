@@ -40,7 +40,8 @@ namespace HomeBot
                 .GetExecutingAssembly()
                 .GetTypes()
                 .Where(t =>
-                    t.Name.EndsWith("Command")
+                    t.Namespace.Equals($"{nameof(HomeBot)}.{nameof(Commands)}")
+                    && t.Name.EndsWith("Command")
                     && t.IsClass
                     && t.IsAssignableTo(typeof(ICommand)))
                 .ToArray();
