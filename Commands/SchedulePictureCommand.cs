@@ -34,7 +34,7 @@ namespace HomeBot.Commands
 
                     if (TimeSpan.TryParse(args[3], out TimeSpan interv))
                     {
-                        if (TrySetupSchedule(args[2], interv))
+                        if (TrySetupSchedule(msg, args[2], interv))
                             await msg.Channel.SendMessageAsync($"Started schedule {args[2]} with interval of {interv}.");
                         else
                             await msg.Channel.SendMessageAsync($"Could not create schedule {args[2]}.");
@@ -58,12 +58,15 @@ namespace HomeBot.Commands
             }
         }
 
-        private bool TrySetupSchedule(string name, TimeSpan interval)
+        private bool TrySetupSchedule(SocketMessage msg, string name, TimeSpan interval)
         {
             if (Program.PicScheduler.Schedules.Count(a => a.Name.Equals(name)) > 0)
                 return false;
 
-            PictureSchedule[] newArr = Program.PicScheduler.Schedules.Append(new PictureSchedule(name, interval)).ToArray();
+            string channelPath = $"{msg.Author.MutualGuilds.First().Name}.{msg.Channel.Name}";
+
+            PictureSchedule[] newArr = Program.PicScheduler.Schedules
+                .Append(new PictureSchedule(name, channelPath, interval)).ToArray();
 
             try
             {

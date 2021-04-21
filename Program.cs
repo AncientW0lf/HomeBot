@@ -5,7 +5,7 @@ namespace HomeBot
 {
     internal class Program
     {
-        public static readonly PictureScheduler PicScheduler = new PictureScheduler();
+        public static PictureScheduler PicScheduler { get; private set; }
 
         private const string TokenVar = "DiscordToken";
 
@@ -45,6 +45,8 @@ namespace HomeBot
             }
 
             Console.WriteLine("Started bot.");
+
+            PicScheduler = new PictureScheduler(client.Client);
 
             while (!_closing)
                 Thread.Sleep(100);
