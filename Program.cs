@@ -5,6 +5,8 @@ namespace HomeBot
 {
     internal class Program
     {
+        private const string TokenVar = "DiscordToken";
+
         private static Thread _botThread = new Thread(StartBot) { Name = "BotMain" };
 
         private static bool _closing;
@@ -19,7 +21,13 @@ namespace HomeBot
 
         private static void StartBot()
         {
-            string token = Environment.GetEnvironmentVariable("DiscordToken");
+            string token = Environment.GetEnvironmentVariable(TokenVar);
+
+            if (string.IsNullOrWhiteSpace(token))
+            {
+                Console.WriteLine($"Could not get environment variable \"{TokenVar}\".");
+                return;
+            }
 
             DiscordClient client;
             try
