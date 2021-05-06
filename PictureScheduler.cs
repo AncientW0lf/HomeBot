@@ -8,6 +8,8 @@ using Unosquare.RaspberryIO;
 using System.Threading.Tasks;
 using Unosquare.RaspberryIO.Camera;
 using Discord.WebSocket;
+using System.Threading;
+using Timer = System.Timers.Timer;
 
 namespace HomeBot
 {
@@ -54,19 +56,26 @@ namespace HomeBot
 
             using (var typing = channel.EnterTypingState())
             {
-                byte[] pic = await Pi.Camera.CaptureImageAsync(new CameraStillSettings
-                {
-                    CaptureEncoding = CameraImageEncodingFormat.Jpg,
-                    CaptureTimeoutMilliseconds = 1250,
-                    CaptureJpegQuality = 90,
-                    CaptureWidth = 640,
-                    CaptureHeight = 480,
-                    HorizontalFlip = true,
-                    VerticalFlip = true
-                });
-                using var picStream = new MemoryStream(pic);
+                using var m = new Mutex(true, $"{nameof(Pi)}.{nameof(Pi.Camera)}");
 
-                await channel.SendFileAsync(picStream, "img.jpg", DateTime.UtcNow.ToString("u"));
+                if (m.WaitOne(TimeSpan.FromSeconds(10)))
+                {
+                    byte[] pic = await Pi.Camera.CaptureImageAsync(new CameraStillSettings
+                    {
+                        CaptureEncoding = CameraImageEncodingFormat.Jpg,
+                        CaptureTimeoutMilliseconds = 1250,
+                        CaptureJpegQuality = 90,
+                        CaptureWidth = 640,
+                        CaptureHeight = 480,
+                        HorizontalFlip = true,
+                        VerticalFlip = true
+                    });
+                    using var picStream = new MemoryStream(pic);
+
+                    await channel.SendFileAsync(picStream, "img.jpg", DateTime.UtcNow.ToString("u"));
+
+                    m.ReleaseMutex();
+                }
             }
         }
 
