@@ -1,13 +1,12 @@
 using System.Linq;
-using System;
-using System.IO;
 using System.Threading.Tasks;
 using Discord.WebSocket;
-using Unosquare.RaspberryIO;
-using Unosquare.RaspberryIO.Camera;
 
 namespace HomeBot.Commands
 {
+    /// <summary>
+    /// Takes a picture on user request and sends it to the right channel.
+    /// </summary>
     public class TakePictureCommand : ICommand
     {
         public async Task Execute(SocketMessage msg)

@@ -4,6 +4,9 @@ using System.Text.Json.Serialization;
 
 namespace HomeBot
 {
+    /// <summary>
+    /// Converts a <see cref="TimeSpan"/> to its string representation.
+    /// </summary>
     internal class TimeSpanJsonConverter : JsonConverter<TimeSpan>
     {
         public override TimeSpan Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
