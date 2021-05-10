@@ -1,9 +1,9 @@
 using System.Linq;
 using Discord.WebSocket;
 
-namespace HomeBot.Workers.Extensions
+namespace HomeBot
 {
-    public static class WorkerExtensions
+    public static class DiscordExtensions
     {
         public static SocketTextChannel GetTextChannel(this DiscordSocketClient client, string channelPath)
         {
