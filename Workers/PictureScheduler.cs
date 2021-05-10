@@ -1,4 +1,3 @@
-using System.Linq;
 using System.Collections.Generic;
 using System;
 using System.IO;
@@ -9,6 +8,7 @@ using Unosquare.RaspberryIO.Camera;
 using Discord.WebSocket;
 using System.Threading;
 using Timer = System.Timers.Timer;
+using HomeBot.Workers.Extensions;
 
 namespace HomeBot.Workers
 {
@@ -62,16 +62,7 @@ namespace HomeBot.Workers
         /// <param name="channelPath">The full path to the channel to send the picture to.</param>
         public async Task TakePicture(string channelPath)
         {
-            //Gets the name of the server
-            string guildName = channelPath.Substring(0, channelPath.IndexOf('.'));
-
-            //Gets the name of the channel
-            string channelName = channelPath.Substring(channelPath.IndexOf('.') + 1);
-
-            //Gets the channel object
-            var channel = _client
-                .Guilds.FirstOrDefault(a => a.Name.Equals(guildName))
-                ?.TextChannels.FirstOrDefault(b => b.Name.Equals(channelName));
+            SocketTextChannel channel = _client.GetTextChannel(channelPath);
 
             //Returns if no channel with the given path could be found
             if (channel == null)
