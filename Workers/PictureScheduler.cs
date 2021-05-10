@@ -10,12 +10,12 @@ using Discord.WebSocket;
 using System.Threading;
 using Timer = System.Timers.Timer;
 
-namespace HomeBot
+namespace HomeBot.Workers
 {
     /// <summary>
     /// Takes pictures based on a schedule defined in <see cref="Filename"/>.
     /// </summary>
-    internal class PictureScheduler : IDisposable
+    internal class PictureScheduler : IDiscordWorker, IDisposable
     {
         /// <summary>
         /// Contains all defined schedules.
@@ -30,23 +30,19 @@ namespace HomeBot
         /// <summary>
         /// The client used to send the pictures to a channel.
         /// </summary>
-        private readonly DiscordSocketClient _client;
+        private DiscordSocketClient _client;
 
         /// <summary>
         /// File watcher for <see cref="Filename"/>.
         /// </summary>
-        private readonly FileSystemWatcher _scheduleWatcher;
+        private readonly FileSystemWatcher _scheduleWatcher = new FileSystemWatcher(Environment.CurrentDirectory, Filename);
 
         /// <summary>
         /// Dictionary of <see cref="Timer"/> objects that take pictures on their specified schedule.
         /// </summary>
         private readonly Dictionary<string, Timer> _scheduleExecutors = new Dictionary<string, Timer>();
 
-        /// <summary>
-        /// Creates a new <see cref="PictureScheduler"/> and starts watching <see cref="Filename"/>.
-        /// </summary>
-        /// <param name="client">The Discord client to use for sending pictures.</param>
-        public PictureScheduler(DiscordSocketClient client)
+        public void StartWork(DiscordSocketClient client)
         {
             _client = client;
 
@@ -55,7 +51,6 @@ namespace HomeBot
             else
                 TryReloadSchedules();
 
-            _scheduleWatcher = new FileSystemWatcher(Environment.CurrentDirectory, Filename);
             _scheduleWatcher.Created += (_, _) => TryReloadSchedules();
             _scheduleWatcher.Changed += (_, _) => TryReloadSchedules();
             _scheduleWatcher.EnableRaisingEvents = true;

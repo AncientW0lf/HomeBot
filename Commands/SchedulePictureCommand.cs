@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Discord.WebSocket;
 using System.Text.Json;
+using HomeBot.Workers;
 
 namespace HomeBot.Commands
 {

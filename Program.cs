@@ -1,5 +1,9 @@
 ﻿using System.Threading;
 using System;
+using HomeBot.Workers;
+using Discord.WebSocket;
+using System.Reflection;
+using System.Linq;
 
 namespace HomeBot
 {
@@ -8,6 +12,8 @@ namespace HomeBot
     /// </summary>
     internal class Program
     {
+        public static IDiscordWorker[] Workers { get; private set; }
+
         /// <summary>
         /// Background runner to take pictures on a schedule.
         /// </summary>
@@ -37,6 +43,8 @@ namespace HomeBot
 
             _botThread.Start();
             _botThread.Join();
+
+            DisposeWorkers();
         }
 
         /// <summary>
@@ -70,14 +78,41 @@ namespace HomeBot
 
             Console.WriteLine("Started bot.");
 
-            //Initializes the picture scheduler to take pictures
-            PicScheduler = new PictureScheduler(client.Client);
+            InitializeWorkers(client.Client);
 
             //Waits for the application to receive a close signal
             while (!_closing)
                 Thread.Sleep(100);
 
             client.Dispose();
+        }
+
+        private static void InitializeWorkers(DiscordSocketClient client)
+        {
+            //Gets all workers
+            Type[] workerTypes = Assembly
+                .GetExecutingAssembly()
+                .GetTypes()
+                .Where(t =>
+                    t.Namespace.Equals($"{nameof(HomeBot)}.{nameof(Workers)}")
+                    && t.IsClass
+                    && t.IsAssignableTo(typeof(IDiscordWorker)))
+                .ToArray();
+
+            //Goes through all commands and instantiates them
+            Workers = new IDiscordWorker[workerTypes.Length];
+            for (int i = 0; i < workerTypes.Length; i++)
+            {
+                Workers[i] = (IDiscordWorker)Activator.CreateInstance(workerTypes[i]);
+                Workers[i].StartWork(client);
+            }
+        }
+
+        private static void DisposeWorkers()
+        {
+            for (int i = 0; i < Workers.Length; i++)
+                if (Workers[i] is IDisposable disposableWorker)
+                    disposableWorker.Dispose();
         }
 
         /// <summary>
