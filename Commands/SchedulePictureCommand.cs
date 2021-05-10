@@ -87,7 +87,7 @@ namespace HomeBot.Commands
                 return false;
 
             //Gets the channel path where the command was received in
-            string channelPath = $"{msg.Author.MutualGuilds.First().Name}.{msg.Channel.Name}";
+            string channelPath = (msg.Channel as SocketGuildChannel)?.GetPath();
 
             //Creates a new array with the new schedule appended
             PictureSchedule[] newArr = Program.PicScheduler.Schedules

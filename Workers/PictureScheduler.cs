@@ -8,7 +8,6 @@ using Unosquare.RaspberryIO.Camera;
 using Discord.WebSocket;
 using System.Threading;
 using Timer = System.Timers.Timer;
-using HomeBot.Workers.Extensions;
 
 namespace HomeBot.Workers
 {

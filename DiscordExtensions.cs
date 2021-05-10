@@ -18,5 +18,10 @@ namespace HomeBot
                 .Guilds.FirstOrDefault(a => a.Name.Equals(guildName))
                 ?.TextChannels.FirstOrDefault(b => b.Name.Equals(channelName));
         }
+
+        public static string GetPath(this SocketGuildChannel channel)
+        {
+            return $"{channel.Guild.Name}.{channel.Name}";
+        }
     }
 }
