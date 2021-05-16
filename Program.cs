@@ -98,8 +98,18 @@ namespace HomeBot
             Workers = new IDiscordWorker[workerTypes.Length];
             for (int i = 0; i < workerTypes.Length; i++)
             {
-                Workers[i] = (IDiscordWorker)Activator.CreateInstance(workerTypes[i]);
-                Workers[i].StartWork(client);
+                try
+                {
+                    Workers[i] = (IDiscordWorker)Activator.CreateInstance(workerTypes[i]);
+                    Workers[i].StartWork(client);
+                }
+                catch (Exception exc)
+                {
+                    Workers[i] = null;
+                    Console.WriteLine(
+                        $"Could not initialize worker of type \"{workerTypes[i].Name}\".\n" +
+                        $"Exception: {exc.Message}");
+                }
             }
         }
 
