@@ -1,6 +1,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Discord.WebSocket;
+using HomeBot.Workers;
 
 namespace HomeBot.Commands
 {
@@ -11,7 +12,8 @@ namespace HomeBot.Commands
     {
         public async Task Execute(SocketMessage msg)
         {
-            await Program.PicScheduler.TakePicture($"{msg.Author.MutualGuilds.First().Name}.{msg.Channel.Name}");
+            await ((PictureScheduler)Program.Workers.FirstOrDefault(w => w is PictureScheduler))
+                .TakePictureAsync($"{msg.Author.MutualGuilds.First().Name}.{msg.Channel.Name}");
         }
     }
 }

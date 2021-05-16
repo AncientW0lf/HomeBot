@@ -82,22 +82,24 @@ namespace HomeBot.Commands
         /// <returns>Returns whether the operation was successful.</returns>
         private bool TrySetupSchedule(SocketMessage msg, string name, TimeSpan interval)
         {
+            PictureScheduler scheduler = (PictureScheduler)Program.Workers.FirstOrDefault(w => w is PictureScheduler);
+
             //Returns false if the given schedule already exists
-            if (Program.PicScheduler.Schedules.Count(a => a.Name.Equals(name)) > 0)
+            if (scheduler?.Settings.Count(a => a.Name.Equals(name)) > 0)
                 return false;
 
             //Gets the channel path where the command was received in
             string channelPath = (msg.Channel as SocketGuildChannel)?.GetPath();
 
             //Creates a new array with the new schedule appended
-            PictureSchedule[] newArr = Program.PicScheduler.Schedules
+            PictureSchedule[] newArr = scheduler.Settings
                 .Append(new PictureSchedule(name, channelPath, interval)).ToArray();
 
             //Tries to write the new schedule to file
             try
             {
                 File.WriteAllText(
-                    PictureScheduler.Filename,
+                    PictureScheduler.File,
                     JsonSerializer.Serialize<PictureSchedule[]>(newArr, new JsonSerializerOptions
                     {
                         WriteIndented = true
@@ -118,18 +120,20 @@ namespace HomeBot.Commands
         /// <returns>Returns whether the operation was successful.</returns>
         private bool TryStopSchedule(string name)
         {
+            PictureScheduler scheduler = (PictureScheduler)Program.Workers.FirstOrDefault(w => w is PictureScheduler);
+
             //Returns false if the given schedule does not exist
-            if (Program.PicScheduler.Schedules.Count(a => a.Name.Equals(name)) == 0)
+            if (scheduler.Settings.Count(a => a.Name.Equals(name)) == 0)
                 return false;
 
             //Creates a new array with the given schedule removed
-            PictureSchedule[] newArr = Program.PicScheduler.Schedules.Where(a => !a.Name.Equals(name)).ToArray();
+            PictureSchedule[] newArr = scheduler.Settings.Where(a => !a.Name.Equals(name)).ToArray();
 
             //Tries to write the schedules with the given one removed to file
             try
             {
                 File.WriteAllText(
-                    PictureScheduler.Filename,
+                    PictureScheduler.File,
                     JsonSerializer.Serialize<PictureSchedule[]>(newArr, new JsonSerializerOptions
                     {
                         WriteIndented = true

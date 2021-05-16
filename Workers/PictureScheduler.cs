@@ -14,27 +14,16 @@ namespace HomeBot.Workers
     /// <summary>
     /// Takes pictures based on a schedule defined in <see cref="Filename"/>.
     /// </summary>
-    internal class PictureScheduler : IDiscordWorker, IDisposable
+    internal class PictureScheduler : SettingWatcher<PictureSchedule>, IDiscordWorker, IDisposable
     {
-        /// <summary>
-        /// Contains all defined schedules.
-        /// </summary>
-        public PictureSchedule[] Schedules = new PictureSchedule[0];
+        public override string Filename { get; } = File;
 
-        /// <summary>
-        /// The path to the file that contains schedule information.
-        /// </summary>
-        public const string Filename = "picschedules.json";
+        public const string File = "picschedules.json";
 
         /// <summary>
         /// The client used to send the pictures to a channel.
         /// </summary>
         private DiscordSocketClient _client;
-
-        /// <summary>
-        /// File watcher for <see cref="Filename"/>.
-        /// </summary>
-        private readonly FileSystemWatcher _scheduleWatcher = new FileSystemWatcher(Environment.CurrentDirectory, Filename);
 
         /// <summary>
         /// Dictionary of <see cref="Timer"/> objects that take pictures on their specified schedule.
@@ -44,22 +33,13 @@ namespace HomeBot.Workers
         public void StartWork(DiscordSocketClient client)
         {
             _client = client;
-
-            if (!File.Exists(Filename))
-                File.Create(Filename).Dispose();
-            else
-                TryReloadSchedules();
-
-            _scheduleWatcher.Created += (_, _) => TryReloadSchedules();
-            _scheduleWatcher.Changed += (_, _) => TryReloadSchedules();
-            _scheduleWatcher.EnableRaisingEvents = true;
         }
 
         /// <summary>
         /// Takes a picture and sends it to a Discord channel.
         /// </summary>
         /// <param name="channelPath">The full path to the channel to send the picture to.</param>
-        public async Task TakePicture(string channelPath)
+        public async Task TakePictureAsync(string channelPath)
         {
             SocketTextChannel channel = _client.GetTextChannel(channelPath);
 
@@ -101,31 +81,15 @@ namespace HomeBot.Workers
             }
         }
 
-        /// <summary>
-        /// Tries to reload the schedules from file.
-        /// </summary>
-        /// <returns>Returns true if the operation was successful.</returns>
-        private bool TryReloadSchedules()
+        protected override bool TryReloadSettings()
         {
-            try
-            {
-                //Reads and deserializes the file
-                Schedules = JsonSerializer.Deserialize<PictureSchedule[]>(File.ReadAllText(Filename));
-            }
-            catch (Exception exc)
-            {
-                Console.WriteLine(
-                    "Failed to reload picture schedules.\n" +
-                    $"Exception: {exc.Message}");
-                return false;
-            }
+            bool success = base.TryReloadSettings();
 
             //Restarts the timer objects for the schedules
-            RestartScheduleTimers();
+            if (success)
+                RestartScheduleTimers();
 
-            Console.WriteLine("Reloaded picture schedules.");
-
-            return true;
+            return success;
         }
 
         /// <summary>
@@ -138,14 +102,14 @@ namespace HomeBot.Workers
             _scheduleExecutors.Clear();
 
             //Adds new timers for every schedule
-            foreach (PictureSchedule schedule in Schedules)
+            foreach (PictureSchedule schedule in Settings)
             {
                 var newTimer = new Timer
                 {
                     AutoReset = true,
                     Interval = schedule.Interval.TotalMilliseconds
                 };
-                newTimer.Elapsed += (_, _) => TakePicture(schedule.ChannelPath).GetAwaiter().GetResult();
+                newTimer.Elapsed += (_, _) => TakePictureAsync(schedule.ChannelPath).GetAwaiter().GetResult();
                 newTimer.Start();
                 _scheduleExecutors.Add(schedule.Name, newTimer);
             }
@@ -160,10 +124,10 @@ namespace HomeBot.Workers
                 timer.Value.Dispose();
         }
 
-        public void Dispose()
+        public override void Dispose()
         {
+            base.Dispose();
             DisposeOldScheduleTimers();
-            _scheduleWatcher.Dispose();
         }
     }
 }

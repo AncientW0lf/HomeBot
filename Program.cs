@@ -15,11 +15,6 @@ namespace HomeBot
         public static IDiscordWorker[] Workers { get; private set; }
 
         /// <summary>
-        /// Background runner to take pictures on a schedule.
-        /// </summary>
-        public static PictureScheduler PicScheduler { get; private set; }
-
-        /// <summary>
         /// Name of the environment variable to load the Discord token from.
         /// </summary>
         private const string TokenVar = "DiscordToken";
