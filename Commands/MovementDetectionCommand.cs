@@ -13,13 +13,13 @@ namespace HomeBot.Commands
         /// <summary>
         /// The syntax of this command.
         /// </summary>
-        private const string Syntax = "MovementDetection start/stop name";
+        private const string Syntax = "MovementDetection start/stop";
 
         public async Task Execute(SocketMessage msg)
         {
-            string[] args = msg.Content.Split(' ');
+            string[] args = msg.Content.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
-            if (args.Length < 3)
+            if (args.Length < 2)
             {
                 await msg.Channel.SendMessageAsync($"Command syntax: {Syntax}");
                 return;
