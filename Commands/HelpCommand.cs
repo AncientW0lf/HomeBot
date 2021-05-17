@@ -21,7 +21,7 @@ namespace HomeBot.Commands
                 .Select(c => string.Join("", c.Name.SkipLast("Command".Length)))
                 .ToArray();
 
-            await msg.Channel.SendMessageAsync($"Available commands:\n" + commands);
+            await msg.Channel.SendMessageAsync($"Available commands:\n" + string.Join('\n', commands));
         }
     }
 }
